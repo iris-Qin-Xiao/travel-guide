@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ 旅游攻略生成器 ✨ - 开启你的治愈之旅</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>">
+</head>
+<body class="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 font-sans">
+    <!-- 右上角功能按钮区 -->
+    <div class="fixed top-4 right-4 z-40 flex items-center gap-3">
+        <!-- 每日签到按钮 -->
+        <button id="dailyCheckinBtn" class="relative p-3 bg-gradient-to-r from-yellow-400 to-orange-400 text-white rounded-full shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300" title="每日签到">
+            <span class="text-xl">🎁</span>
+            <span id="checkinBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">!</span>
+        </button>
+        <!-- 长辈模式切换按钮 -->
+        <button id="seniorModeBtn" class="px-4 py-2 bg-gradient-to-r from-orange-400 to-red-400 text-white font-bold rounded-full shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+            👴 长辈模式
+        </button>
+        <!-- 重新召唤小人按钮 -->
+        <button id="resetCharacterBtn" class="px-4 py-2 bg-gradient-to-r from-purple-400 to-pink-400 text-white font-bold rounded-full shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+            🧙 重新召唤小人
+        </button>
+    </div>
+
+    <!-- 侧边悬浮小人 -->
+    <div id="floatingCharacter" class="fixed bottom-8 right-8 z-50 cursor-move transition-all duration-300">
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-4 border-2 border-pink-200 flex flex-col items-center">
+            <div id="characterImage" class="text-4xl mb-2">🧳</div>
+            <div id="characterBubble" class="hidden bg-white rounded-lg p-2 shadow-md text-sm text-gray-700 max-w-[120px] text-center">
+                旅途愉快~ ✨
+            </div>
+        </div>
+    </div>
+    <!-- 旅行主题Banner -->
+    <div class="travel-banner">
+        <div class="banner-content">
+            <div class="banner-emoji">🌍</div>
+            <h1 class="banner-title">🌸 旅游攻略生成器 🌸</h1>
+            <p class="banner-subtitle">✨ 专为治愈系旅行爱好者设计 ✨</p>
+            <div class="banner-tags">
+                <span class="tag">🏔️ 探索美景</span>
+                <span class="tag">🍜 寻觅美食</span>
+                <span class="tag">📸 记录足迹</span>
+                <span class="tag">💖 治愈心灵</span>
+            </div>
+        </div>
+        <div class="banner-decorations">
+            <span class="deco deco-1">✈️</span>
+            <span class="deco deco-2">🎒</span>
+            <span class="deco deco-3">🗺️</span>
+            <span class="deco deco-4">🎫</span>
+        </div>
+    </div>
+
+    <!-- 顶部装饰云朵 -->
+    <div class="clouds">
+        <div class="cloud cloud-1">☁️</div>
+        <div class="cloud cloud-2">☁️</div>
+        <div class="cloud cloud-3">☁️</div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="container mx-auto px-4 py-8 relative z-10">
+        <!-- 标题区域 (移动端显示) -->
+        <header class="text-center mb-8 fade-in mobile-header">
+            <h1 class="text-3xl md:text-5xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400">
+                🌸 旅游攻略生成器 🌸
+            </h1>
+            <p class="text-base md:text-lg text-gray-600 mb-2">✨ 专为治愈系旅行爱好者设计 ✨</p>
+        </header>
+
+        <!-- 快捷模板按钮 -->
+        <div class="max-w-4xl mx-auto mb-8 fade-in">
+            <div class="flex flex-wrap justify-center gap-4">
+                <button class="template-btn px-6 py-3 bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300" data-template="weekend">
+                    🏃 周末短途
+                </button>
+                <button class="template-btn px-6 py-3 bg-gradient-to-r from-pink-400 to-red-400 text-white font-bold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300" data-template="couple">
+                    💑 情侣浪漫
+                </button>
+                <button class="template-btn px-6 py-3 bg-gradient-to-r from-green-400 to-teal-400 text-white font-bold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300" data-template="niche">
+                    🌿 小众避峰
+                </button>
+            </div>
+        </div>
+
+        <!-- 选项面板 -->
+        <section class="max-w-5xl mx-auto mb-8">
+            <div class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-6 md:p-8 card-hover fade-in">
+                <h2 class="text-2xl font-bold text-gray-700 mb-6 text-center">
+                    🎛️ 定制你的专属旅行 ✨
+                </h2>
+
+                <!-- 选项网格 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- 出行人群 -->
+                    <div class="option-group">
+                        <h3 class="text-lg font-bold text-gray-600 mb-3 flex items-center">
+                            <span class="mr-2">🎯</span> 出行人群
+                        </h3>
+                        <div class="flex flex-wrap gap-2" id="crowdGroup">
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="crowd" data-value="solo">单人 👤</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent selected" data-type="crowd" data-value="couple">情侣 💑</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="crowd" data-value="family">亲子 👨‍👩‍👧</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="crowd" data-value="friends">闺蜜 👯</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="crowd" data-value="team">团建 👥</button>
+                        </div>
+                    </div>
+
+                    <!-- 出行天数 -->
+                    <div class="option-group">
+                        <h3 class="text-lg font-bold text-gray-600 mb-3 flex items-center">
+                            <span class="mr-2">🗓️</span> 出行天数
+                        </h3>
+                        <div class="flex flex-wrap gap-2" id="daysGroup">
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="days" data-value="2">2天 🌙</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent selected" data-type="days" data-value="3">3天 🌟</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="days" data-value="5">5天以上 🎯</button>
+                        </div>
+                    </div>
+
+                    <!-- 预算 -->
+                    <div class="option-group">
+                        <h3 class="text-lg font-bold text-gray-600 mb-3 flex items-center">
+                            <span class="mr-2">💰</span> 预算
+                        </h3>
+                        <div class="flex flex-wrap gap-2" id="budgetGroup">
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent selected" data-type="budget" data-value="budget">穷游 💸</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="budget" data-value="normal">平价 💵</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="budget" data-value="luxury">轻奢 ✨</button>
+                        </div>
+                    </div>
+
+                    <!-- 出行方式 -->
+                    <div class="option-group">
+                        <h3 class="text-lg font-bold text-gray-600 mb-3 flex items-center">
+                            <span class="mr-2">🚗</span> 出行方式
+                        </h3>
+                        <div class="flex flex-wrap gap-2" id="transportGroup">
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="transport" data-value="train">高铁 🚄</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent selected" data-type="transport" data-value="car">自驾 🚗</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="transport" data-value="walk">步行漫游 🚶</button>
+                        </div>
+                    </div>
+
+                    <!-- 游玩偏好 -->
+                    <div class="option-group">
+                        <h3 class="text-lg font-bold text-gray-600 mb-3 flex items-center">
+                            <span class="mr-2">🌿</span> 游玩偏好
+                        </h3>
+                        <div class="flex flex-wrap gap-2" id="preferenceGroup">
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="preference" data-value="nature">自然风光 🏞️</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent selected" data-type="preference" data-value="city">城市逛吃 🏙️</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="preference" data-value="niche">小众秘境 🌲</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="preference" data-value="trendy">网红打卡 📸</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="preference" data-value="history">历史人文 🏛️</button>
+                        </div>
+                    </div>
+
+                    <!-- 避坑需求 -->
+                    <div class="option-group">
+                        <h3 class="text-lg font-bold text-gray-600 mb-3 flex items-center">
+                            <span class="mr-2">⚠️</span> 避坑需求
+                        </h3>
+                        <div class="flex flex-wrap gap-2" id="avoidGroup">
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="avoid" data-value="crowd">避开人潮 🙅</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="avoid" data-value="trendy">不踩网红坑 😤</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="avoid" data-value="mountain">不爬山 ⛰️</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent selected" data-type="avoid" data-value="lazy">佛系懒人 😴</button>
+                        </div>
+                    </div>
+
+                    <!-- 住宿偏好 -->
+                    <div class="option-group">
+                        <h3 class="text-lg font-bold text-gray-600 mb-3 flex items-center">
+                            <span class="mr-2">🏨</span> 住宿偏好
+                        </h3>
+                        <div class="flex flex-wrap gap-2" id="hotelPrefGroup">
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent selected" data-type="hotelPref" data-value="budget">经济型 💰</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="hotelPref" data-value="comfort">舒适型 🛋️</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="hotelPref" data-value="unique">特色民宿 🏯</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="hotelPref" data-value="trendy">网红酒店 ✨</button>
+                        </div>
+                    </div>
+
+                    <!-- 饮食偏好 -->
+                    <div class="option-group">
+                        <h3 class="text-lg font-bold text-gray-600 mb-3 flex items-center">
+                            <span class="mr-2">🍜</span> 饮食偏好
+                        </h3>
+                        <div class="flex flex-wrap gap-2" id="foodPrefGroup">
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent selected" data-type="foodPref" data-value="local">本地特色 🏠</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="foodPref" data-value="trendy">网红美食 📸</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="foodPref" data-value="light">清淡口味 🥬</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="foodPref" data-value="spicy">无辣不欢 🌶️</button>
+                        </div>
+                    </div>
+
+                    <!-- 出行时段 -->
+                    <div class="option-group">
+                        <h3 class="text-lg font-bold text-gray-600 mb-3 flex items-center">
+                            <span class="mr-2">🕐</span> 出行时段
+                        </h3>
+                        <div class="flex flex-wrap gap-2" id="travelTimeGroup">
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent selected" data-type="travelTime" data-value="normal">平日出游 📅</button>
+                            <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="travelTime" data-value="holiday">节假日出游 🎉</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 目的地搜索卡片 -->
+        <section class="max-w-4xl mx-auto mb-8">
+            <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 card-hover fade-in">
+                <h2 class="text-2xl font-bold text-gray-700 mb-4 text-center">
+                    🗺️ 选择你的梦想目的地
+                </h2>
+                <!-- 搜索框 -->
+                <div class="max-w-md mx-auto mb-6">
+                    <div class="relative">
+                        <input type="text" id="destinationSearch" placeholder="🔍 搜索城市或景点..." class="w-full px-5 py-3 pl-12 rounded-full border-2 border-purple-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 outline-none transition-all duration-300 text-gray-700 placeholder-gray-400 bg-white/90 shadow-md">
+                        <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg">🔍</span>
+                    </div>
+                </div>
+                <!-- 搜索结果展示区域 -->
+                <div id="searchResults" class="hidden mt-6">
+                    <div class="border-t border-gray-200 pt-6">
+                        <h4 class="text-lg font-bold text-gray-600 mb-4 text-center flex items-center justify-center">
+                            <span class="mr-2">🔮</span> 搜索结果
+                        </h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="searchResultsGrid">
+                            <!-- 搜索结果将通过JS动态生成 -->
+                        </div>
+                    </div>
+                </div>
+                <!-- 无匹配结果提示 -->
+                <div id="noDestinationResult" class="hidden text-center py-12">
+                    <p class="text-5xl mb-4">🔍</p>
+                    <p class="text-xl text-gray-600 mb-2">暂无该城市攻略</p>
+                    <p class="text-gray-400">欢迎提交反馈，我们会尽快更新 ✨</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 热门城市卡片网格 -->
+        <section class="max-w-4xl mx-auto mb-8 fade-in">
+            <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-6">
+                <h3 class="text-lg font-bold text-gray-700 mb-4 text-center flex items-center justify-center">
+                    <span class="mr-2">🔥</span> 热门城市一键选择
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="hotCitiesGrid">
+                    <button class="hot-city-btn p-4 bg-gradient-to-br from-white to-purple-50 rounded-2xl border-2 border-transparent hover:border-pink-400 transition-all duration-300 hover:shadow-lg hover:scale-105 relative" data-city="beijing" data-cityname="北京">
+                        <div class="text-3xl mb-1">🏯</div>
+                        <div class="text-sm font-medium text-gray-700">🗺️北京</div>
+                        <div class="text-xs text-gray-400">帝都皇城</div>
+                        <div class="map-icon absolute top-2 right-2 w-7 h-7 bg-white/90 hover:bg-pink-100 rounded-full shadow-md flex items-center justify-center text-sm transition-all duration-300 hover:scale-110 cursor-pointer" title="查看地图">⭐</div>
+                    </button>
+                    <button class="hot-city-btn p-4 bg-gradient-to-br from-white to-purple-50 rounded-2xl border-2 border-transparent hover:border-pink-400 transition-all duration-300 hover:shadow-lg hover:scale-105 relative" data-city="shanghai" data-cityname="上海">
+                        <div class="text-3xl mb-1">🌆</div>
+                        <div class="text-sm font-medium text-gray-700">🗺️上海</div>
+                        <div class="text-xs text-gray-400">魔都风情</div>
+                        <div class="map-icon absolute top-2 right-2 w-7 h-7 bg-white/90 hover:bg-pink-100 rounded-full shadow-md flex items-center justify-center text-sm transition-all duration-300 hover:scale-110 cursor-pointer" title="查看地图">⭐</div>
+                    </button>
+                    <button class="hot-city-btn p-4 bg-gradient-to-br from-white to-purple-50 rounded-2xl border-2 border-transparent hover:border-pink-400 transition-all duration-300 hover:shadow-lg hover:scale-105 relative" data-city="changsha" data-cityname="长沙">
+                        <div class="text-3xl mb-1">🎆</div>
+                        <div class="text-sm font-medium text-gray-700">长沙</div>
+                        <div class="text-xs text-gray-400">烟火星城</div>
+                        <div class="map-icon absolute top-2 right-2 w-7 h-7 bg-white/90 hover:bg-pink-100 rounded-full shadow-md flex items-center justify-center text-sm transition-all duration-300 hover:scale-110 cursor-pointer" title="查看地图">🗺️</div>
+                    </button>
+                    <button class="hot-city-btn p-4 bg-gradient-to-br from-white to-purple-50 rounded-2xl border-2 border-transparent hover:border-pink-400 transition-all duration-300 hover:shadow-lg hover:scale-105 relative" data-city="chongqing" data-cityname="重庆">
+                        <div class="text-3xl mb-1">🏙️</div>
+                        <div class="text-sm font-medium text-gray-700">🗺️重庆</div>
+                        <div class="text-xs text-gray-400">山城雾都</div>
+                        <div class="map-icon absolute top-2 right-2 w-7 h-7 bg-white/90 hover:bg-pink-100 rounded-full shadow-md flex items-center justify-center text-sm transition-all duration-300 hover:scale-110 cursor-pointer" title="查看地图">⭐</div>
+                    </button>
+                    <button class="hot-city-btn p-4 bg-gradient-to-br from-white to-purple-50 rounded-2xl border-2 border-transparent hover:border-pink-400 transition-all duration-300 hover:shadow-lg hover:scale-105 relative" data-city="xian" data-cityname="西安">
+                        <div class="text-3xl mb-1">🏛️</div>
+                        <div class="text-sm font-medium text-gray-700">西安</div>
+                        <div class="text-xs text-gray-400">千年古都</div>
+                        <div class="map-icon absolute top-2 right-2 w-7 h-7 bg-white/90 hover:bg-pink-100 rounded-full shadow-md flex items-center justify-center text-sm transition-all duration-300 hover:scale-110 cursor-pointer" title="查看地图">🗺️</div>
+                    </button>
+                    <button class="hot-city-btn p-4 bg-gradient-to-br from-white to-purple-50 rounded-2xl border-2 border-transparent hover:border-pink-400 transition-all duration-300 hover:shadow-lg hover:scale-105 relative" data-city="chengdu" data-cityname="成都">
+                        <div class="text-3xl mb-1">🐼</div>
+                        <div class="text-sm font-medium text-gray-700">成都</div>
+                        <div class="text-xs text-gray-400">天府之国</div>
+                        <div class="map-icon absolute top-2 right-2 w-7 h-7 bg-white/90 hover:bg-pink-100 rounded-full shadow-md flex items-center justify-center text-sm transition-all duration-300 hover:scale-110 cursor-pointer" title="查看地图">🗺️</div>
+                    </button>
+                    <button class="hot-city-btn p-4 bg-gradient-to-br from-white to-purple-50 rounded-2xl border-2 border-transparent hover:border-pink-400 transition-all duration-300 hover:shadow-lg hover:scale-105 relative" data-city="hangzhou" data-cityname="杭州">
+                        <div class="text-3xl mb-1">🏯</div>
+                        <div class="text-sm font-medium text-gray-700">🗺️杭州</div>
+                        <div class="text-xs text-gray-400">人间天堂</div>
+                        <div class="map-icon absolute top-2 right-2 w-7 h-7 bg-white/90 hover:bg-pink-100 rounded-full shadow-md flex items-center justify-center text-sm transition-all duration-300 hover:scale-110 cursor-pointer" title="查看地图">⭐</div>
+                    </button>
+                    <button class="hot-city-btn p-4 bg-gradient-to-br from-white to-purple-50 rounded-2xl border-2 border-transparent hover:border-pink-400 transition-all duration-300 hover:shadow-lg hover:scale-105 relative" data-city="xiamen" data-cityname="厦门">
+                        <div class="text-3xl mb-1">🌊</div>
+                        <div class="text-sm font-medium text-gray-700">🗺️厦门</div>
+                        <div class="text-xs text-gray-400">海上花园</div>
+                        <div class="map-icon absolute top-2 right-2 w-7 h-7 bg-white/90 hover:bg-pink-100 rounded-full shadow-md flex items-center justify-center text-sm transition-all duration-300 hover:scale-110 cursor-pointer" title="查看地图">🗺️</div>
+                    </button>
+                    <button class="hot-city-btn p-4 bg-gradient-to-br from-white to-purple-50 rounded-2xl border-2 border-transparent hover:border-pink-400 transition-all duration-300 hover:shadow-lg hover:scale-105 relative" data-city="qingdao" data-cityname="青岛">
+                        <div class="text-3xl mb-1">🏖️</div>
+                        <div class="text-sm font-medium text-gray-700">青岛</div>
+                        <div class="text-xs text-gray-400">红瓦绿树</div>
+                        <div class="map-icon absolute top-2 right-2 w-7 h-7 bg-white/90 hover:bg-pink-100 rounded-full shadow-md flex items-center justify-center text-sm transition-all duration-300 hover:scale-110 cursor-pointer" title="查看地图">🗺️</div>
+                    </button>
+                    <button class="hot-city-btn p-4 bg-gradient-to-br from-white to-purple-50 rounded-2xl border-2 border-transparent hover:border-pink-400 transition-all duration-300 hover:shadow-lg hover:scale-105 relative" data-city="sanya" data-cityname="三亚">
+                        <div class="text-3xl mb-1">🏝️</div>
+                        <div class="text-sm font-medium text-gray-700">三亚</div>
+                        <div class="text-xs text-gray-400">热带海岛</div>
+                        <div class="map-icon absolute top-2 right-2 w-7 h-7 bg-white/90 hover:bg-pink-100 rounded-full shadow-md flex items-center justify-center text-sm transition-all duration-300 hover:scale-110 cursor-pointer" title="查看地图">🗺️</div>
+                    </button>
+                    <button class="hot-city-btn p-4 bg-gradient-to-br from-white to-purple-50 rounded-2xl border-2 border-transparent hover:border-pink-400 transition-all duration-300 hover:shadow-lg hover:scale-105 relative" data-city="dali" data-cityname="大理">
+                        <div class="text-3xl mb-1">🌸</div>
+                        <div class="text-sm font-medium text-gray-700">大理</div>
+                        <div class="text-xs text-gray-400">风花雪月</div>
+                        <div class="map-icon absolute top-2 right-2 w-7 h-7 bg-white/90 hover:bg-pink-100 rounded-full shadow-md flex items-center justify-center text-sm transition-all duration-300 hover:scale-110 cursor-pointer" title="查看地图">🗺️</div>
+                    </button>
+                    <button class="hot-city-btn p-4 bg-gradient-to-br from-white to-purple-50 rounded-2xl border-2 border-transparent hover:border-pink-400 transition-all duration-300 hover:shadow-lg hover:scale-105 relative" data-city="wuzhen" data-cityname="乌镇">
+                        <div class="text-3xl mb-1">🏮</div>
+                        <div class="text-sm font-medium text-gray-700">🗺️乌镇</div>
+                        <div class="text-xs text-gray-400">江南水乡</div>
+                        <div class="map-icon absolute top-2 right-2 w-7 h-7 bg-white/90 hover:bg-pink-100 rounded-full shadow-md flex items-center justify-center text-sm transition-all duration-300 hover:scale-110 cursor-pointer" title="查看地图">⭐</div>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 用户宝藏目的地推荐卡片 -->
+        <section class="max-w-4xl mx-auto mb-8 fade-in">
+            <button id="treasureRecommendBtn" class="w-full p-6 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 rounded-3xl border-2 border-orange-200 hover:border-pink-400 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] group">
+                <div class="flex flex-col items-center text-center">
+                    <div class="text-4xl mb-2 group-hover:animate-bounce">⭐</div>
+                    <div class="text-lg font-bold text-gray-700 mb-1">推荐你的宝藏目的地</div>
+                    <div class="text-sm text-gray-500">分享小众秘境，一起解锁更多风景</div>
+                </div>
+            </button>
+        </section>
+
+        <!-- 旅行人格测试入口 -->
+        <div class="text-center mb-8 fade-in">
+            <button id="personalityTestBtn" class="px-12 py-4 bg-gradient-to-r from-purple-400 to-pink-400 text-white text-xl font-bold rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+                🧭 先测测你的旅行人格
+            </button>
+            <p class="mt-2 text-gray-500 text-sm">了解自己的旅行风格，获得更精准的攻略推荐</p>
+        </div>
+
+        <!-- 生成按钮 -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 fade-in">
+            <button id="generateBtn" class="generate-btn px-12 py-5 bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 text-white text-xl font-bold rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                ✨ 生成专属攻略 ✨
+            </button>
+            <button id="budgetReverseBtn" class="px-12 py-5 bg-gradient-to-r from-green-400 to-teal-400 text-white text-xl font-bold rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-500">
+                💰 预算反向定制 🎯
+            </button>
+        </div>
+
+        <!-- 加载动画 -->
+        <div id="loadingSpinner" class="hidden text-center py-12">
+            <div class="loading-animation">
+                <div class="airplane">✈️</div>
+                <div class="clouds-float">
+                    <span>☁️</span>
+                    <span>☁️</span>
+                    <span>☁️</span>
+                    <span>☁️</span>
+                </div>
+            </div>
+            <!-- 骨架屏 -->
+            <div class="skeleton-container">
+                <div class="skeleton-card">
+                    <div class="skeleton-line title"></div>
+                    <div class="skeleton-line subtitle"></div>
+                    <div class="skeleton-line"></div>
+                    <div class="skeleton-line"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton-line"></div>
+                    <div class="skeleton-line"></div>
+                    <div class="skeleton-line"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton-line"></div>
+                    <div class="skeleton-line"></div>
+                </div>
+            </div>
+            <div class="loading-progress">
+                <p><span class="emoji">🗺️</span> <span id="loadingText">正在规划你的完美旅程... 💫</span></p>
+            </div>
+        </div>
+
+        <!-- 攻略展示区域 -->
+        <section id="guideSection" class="max-w-5xl mx-auto hidden">
+            <!-- 攻略头部 -->
+            <div class="bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 rounded-3xl p-8 mb-8 text-white text-center shadow-2xl fade-in relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-full opacity-10">
+                    <div class="absolute top-4 left-4 text-6xl">✨</div>
+                    <div class="absolute bottom-4 right-4 text-6xl">🌟</div>
+                </div>
+                <h2 class="text-3xl font-bold mb-2 relative z-10" id="guideTitle">🌟 旅行攻略 🌟</h2>
+                <p class="text-lg opacity-90 relative z-10" id="guideSubtitle">一份专属你的治愈系旅行计划</p>
+                <!-- 智能出行标签 -->
+                <div class="flex flex-wrap justify-center gap-2 mt-4 relative z-10" id="smartTagsContainer">
+                    <!-- 智能标签将通过JS动态生成 -->
+                </div>
+                <!-- 操作按钮 -->
+                <div class="flex flex-wrap justify-center gap-3 mt-6 relative z-10">
+                    <!-- 新增功能按钮 -->
+                    <button id="backToOptionsBtn" class="action-btn px-5 py-2 bg-white/20 backdrop-blur-sm rounded-full font-semibold text-white hover:bg-white/30 transition-all duration-300 flex items-center gap-2 hover:scale-105">
+                        <span>🔙</span>
+                        <span>返回重新选择目的地</span>
+                    </button>
+                    <button id="toggleGuideBtn" class="action-btn px-5 py-2 bg-white/20 backdrop-blur-sm rounded-full font-semibold text-white hover:bg-white/30 transition-all duration-300 flex items-center gap-2 hover:scale-105">
+                        <span id="toggleIcon">🔽</span>
+                        <span>收起</span>
+                    </button>
+                    <button id="clearGuideBtn" class="action-btn px-5 py-2 bg-white/20 backdrop-blur-sm rounded-full font-semibold text-white hover:bg-white/30 transition-all duration-300 flex items-center gap-2 hover:scale-105">
+                        <span>×</span>
+                        <span>清空</span>
+                    </button>
+                    <button id="editGuideBtn" class="action-btn px-5 py-2 bg-white/20 backdrop-blur-sm rounded-full font-semibold text-white hover:bg-white/30 transition-all duration-300 flex items-center gap-2 hover:scale-105">
+                        <span>🔄</span>
+                        <span>重新生成（修改偏好）</span>
+                    </button>
+                    <!-- 原有操作按钮 -->
+                    <button id="favoriteBtn" class="action-btn px-5 py-2 bg-white/20 backdrop-blur-sm rounded-full font-semibold text-white hover:bg-white/30 transition-all duration-300 flex items-center gap-2 hover:scale-105">
+                        <span id="favoriteIcon">🤍</span>
+                        <span>收藏</span>
+                    </button>
+                    <button id="copyBtn" class="action-btn px-5 py-2 bg-white/20 backdrop-blur-sm rounded-full font-semibold text-white hover:bg-white/30 transition-all duration-300 flex items-center gap-2 hover:scale-105">
+                        <span>📋</span>
+                        <span>复制</span>
+                    </button>
+                    <button id="shareBtn" class="action-btn px-5 py-2 bg-white/20 backdrop-blur-sm rounded-full font-semibold text-white hover:bg-white/30 transition-all duration-300 flex items-center gap-2 hover:scale-105">
+                        <span>🔗</span>
+                        <span>分享</span>
+                    </button>
+                </div>
+                <!-- Toast提示 -->
+                <div id="toast" class="hidden mt-4 bg-white/30 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium">
+                    <span id="toastText"></span>
+                </div>
+            </div>
+
+            <!-- 推荐城市 -->
+            <div id="citiesSection" class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-6 fade-in">
+                <h3 class="text-2xl font-bold text-gray-700 mb-6 text-center flex items-center justify-center">
+                    <span class="mr-3">📍</span> 推荐目的地
+                </h3>
+                <div id="cityCards" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- 城市卡片将通过JS动态生成 -->
+                </div>
+            </div>
+
+            <!-- 旅行方案 -->
+            <div id="plansSection" class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-6 fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-700 flex items-center justify-center">
+                        <span class="mr-3">📅</span> 旅行方案
+                    </h3>
+                    <button class="section-speech-btn text-pink-500 hover:text-pink-600 transition-colors" data-section="plans" title="朗读此板块">
+                        <span class="text-xl">🔊</span>
+                    </button>
+                </div>
+                
+                <!-- 标签页切换 -->
+                <div class="flex justify-center mb-6">
+                    <div class="inline-flex bg-gray-100 rounded-full p-1">
+                        <button class="plan-tab px-6 py-2 rounded-full font-semibold transition-all duration-300 bg-gradient-to-r from-pink-400 to-purple-400 text-white" data-plan="compact">
+                            📌 方案A：紧凑高效版
+                        </button>
+                        <button class="plan-tab px-6 py-2 rounded-full font-semibold transition-all duration-300 text-gray-600 hover:text-gray-800" data-plan="relaxed">
+                            😴 方案B：佛系懒人版
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 方案内容 -->
+                <div id="planContent">
+                    <!-- Plan A: Compact -->
+                    <div id="planA" class="plan-panel">
+                        <div id="planAContent" class="space-y-4">
+                            <!-- 行程内容将通过JS动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <!-- Plan B: Relaxed -->
+                    <div id="planB" class="plan-panel hidden">
+                        <div id="planBContent" class="space-y-4">
+                            <!-- 行程内容将通过JS动态生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 交通建议 -->
+            <div id="transportSection" class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-6 fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-700 flex items-center justify-center">
+                        <span class="mr-3">🚗</span> 交通建议
+                    </h3>
+                    <button class="section-speech-btn text-pink-500 hover:text-pink-600 transition-colors" data-section="transport" title="朗读此板块">
+                        <span class="text-xl">🔊</span>
+                    </button>
+                </div>
+                <div id="transportContent" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- 交通内容将通过JS动态生成 -->
+                </div>
+            </div>
+
+            <!-- 必吃美食 -->
+            <div id="foodSection" class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-6 fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-700 flex items-center justify-center">
+                        <span class="mr-3">🍜</span> 必吃美食
+                    </h3>
+                    <button class="section-speech-btn text-pink-500 hover:text-pink-600 transition-colors" data-section="food" title="朗读此板块">
+                        <span class="text-xl">🔊</span>
+                    </button>
+                </div>
+                <div id="foodCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- 美食卡片将通过JS动态生成 -->
+                </div>
+            </div>
+
+            <!-- 住宿推荐 -->
+            <div id="hotelSection" class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-6 fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-700 flex items-center justify-center">
+                        <span class="mr-3">🏨</span> 住宿推荐
+                    </h3>
+                    <button class="section-speech-btn text-pink-500 hover:text-pink-600 transition-colors" data-section="hotel" title="朗读此板块">
+                        <span class="text-xl">🔊</span>
+                    </button>
+                </div>
+                <div id="hotelCards" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- 住宿卡片将通过JS动态生成 -->
+                </div>
+            </div>
+
+            <!-- 避坑提醒 -->
+            <div id="avoidSection" class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-6 fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-700 flex items-center justify-center">
+                        <span class="mr-3">⚠️</span> 避坑提醒
+                    </h3>
+                    <button class="section-speech-btn text-pink-500 hover:text-pink-600 transition-colors" data-section="avoid" title="朗读此板块">
+                        <span class="text-xl">🔊</span>
+                    </button>
+                </div>
+                <div id="avoidCards" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- 避坑内容将通过JS动态生成 -->
+                </div>
+            </div>
+
+            <!-- 出行小贴士 -->
+            <div id="tipsSection" class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-6 fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-700 flex items-center justify-center">
+                        <span class="mr-3">💡</span> 出行小贴士
+                    </h3>
+                    <button class="section-speech-btn text-pink-500 hover:text-pink-600 transition-colors" data-section="tips" title="朗读此板块">
+                        <span class="text-xl">🔊</span>
+                    </button>
+                </div>
+                <div id="tipsContent" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 出行小贴士内容将通过JS动态生成 -->
+                </div>
+            </div>
+
+            <!-- 预算估算 -->
+            <div id="budgetSection" class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-6 fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-700 flex items-center justify-center">
+                        <span class="mr-3">💰</span> 预算估算
+                    </h3>
+                    <button class="section-speech-btn text-pink-500 hover:text-pink-600 transition-colors" data-section="budget" title="朗读此板块">
+                        <span class="text-xl">🔊</span>
+                    </button>
+                </div>
+                <div id="budgetContent" class="space-y-4">
+                    <!-- 预算内容将通过JS动态生成 -->
+                </div>
+            </div>
+
+            <!-- 本地人避坑指南 -->
+            <div id="localTipsSection" class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-6 fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-700 flex items-center justify-center">
+                        <span class="mr-3">👨‍💼</span> 本地人私藏避坑指南
+                    </h3>
+                    <button class="section-speech-btn text-pink-500 hover:text-pink-600 transition-colors" data-section="localTips" title="朗读此板块">
+                        <span class="text-xl">🔊</span>
+                    </button>
+                </div>
+                <div class="space-y-6">
+                    <!-- 网红店红黑榜 -->
+                    <div>
+                        <h4 class="font-semibold text-lg text-gray-700 mb-3 flex items-center gap-2">
+                            <span>🏪</span> 网红店红黑榜
+                        </h4>
+                        <div id="redBlackList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- 红黑榜内容将通过JS动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 景点免费平替 -->
+                    <div>
+                        <h4 class="font-semibold text-lg text-gray-700 mb-3 flex items-center gap-2">
+                            <span>🎫</span> 景点免费平替
+                        </h4>
+                        <div id="freeAlternatives" class="space-y-3">
+                            <!-- 免费平替内容将通过JS动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 错峰出行时间轴 -->
+                    <div>
+                        <h4 class="font-semibold text-lg text-gray-700 mb-3 flex items-center gap-2">
+                            <span>⏰</span> 错峰出行时间轴
+                        </h4>
+                        <div id="offPeakTimeline" class="space-y-3">
+                            <!-- 时间轴内容将通过JS动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 消费防套路提示 -->
+                    <div>
+                        <h4 class="font-semibold text-lg text-gray-700 mb-3 flex items-center gap-2">
+                            <span>⚠️</span> 消费防套路提示
+                        </h4>
+                        <div id="antiScamTips" class="space-y-2">
+                            <!-- 防套路提示将通过JS动态生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 旅行备忘录 -->
+            <div id="memoSection" class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-6 fade-in">
+                <h3 class="text-2xl font-bold text-gray-700 mb-6 text-center flex items-center justify-center">
+                    <span class="mr-3">📝</span> 旅行备忘录
+                </h3>
+                <div class="space-y-4">
+                    <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-5 border-2 border-blue-100">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-xl">🧳</span>
+                            <h4 class="font-semibold text-gray-700">行李清单</h4>
+                        </div>
+                        <textarea id="memoLuggage" rows="3" placeholder="列出行李物品，证件、电子设备、衣物、洗漱用品..."
+                            class="w-full px-4 py-3 rounded-xl border-2 border-blue-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all duration-300 text-gray-700 placeholder-gray-400 resize-none text-sm"></textarea>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-50 to-teal-50 rounded-2xl p-5 border-2 border-green-100">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-xl">⏰</span>
+                            <h4 class="font-semibold text-gray-700">出行提醒</h4>
+                        </div>
+                        <textarea id="memoReminders" rows="3" placeholder="记录重要提醒，航班时间、酒店地址、预订确认号..."
+                            class="w-full px-4 py-3 rounded-xl border-2 border-green-200 focus:border-green-400 focus:ring-2 focus:ring-green-100 outline-none transition-all duration-300 text-gray-700 placeholder-gray-400 resize-none text-sm"></textarea>
+                    </div>
+                    <div class="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl p-5 border-2 border-pink-100">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-xl">💭</span>
+                            <h4 class="font-semibold text-gray-700">个人备注</h4>
+                        </div>
+                        <textarea id="memoNotes" rows="3" placeholder="写下你的旅行计划、期待做的事情、想去的餐厅..."
+                            class="w-full px-4 py-3 rounded-xl border-2 border-pink-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-100 outline-none transition-all duration-300 text-gray-700 placeholder-gray-400 resize-none text-sm"></textarea>
+                    </div>
+                    <div class="flex items-center justify-between text-sm text-gray-500 mt-3">
+                        <span class="flex items-center gap-1">
+                            <span class="text-green-500">✓</span> 内容自动保存到本地
+                        </span>
+                        <span id="memoSaveStatus" class="opacity-0 transition-opacity duration-300">已保存 ✓</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 重新生成按钮 -->
+            <div class="text-center mt-8 fade-in">
+                <button id="regenerateBtn" class="px-8 py-3 bg-gradient-to-r from-green-400 to-teal-400 text-white font-bold rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+                    🔄 换个目的地 🌈
+                </button>
+            </div>
+
+            <!-- 收藏记录 -->
+            <div id="favoritesSection" class="mt-8 hidden">
+                <div class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-6 fade-in">
+                    <h3 class="text-xl font-bold text-gray-700 mb-4 text-center flex items-center justify-center">
+                        <span class="mr-2">⭐</span> 我的收藏
+                    </h3>
+                    <div id="favoritesList" class="space-y-3">
+                        <!-- 收藏列表将通过JS动态生成 -->
+                    </div>
+                    <div id="noFavorites" class="text-center text-gray-400 py-6 hidden">
+                        <p class="text-4xl mb-2">💫</p>
+                        <p>还没有收藏的攻略哦～</p>
+                        <p class="text-sm mt-1">生成攻略后点击收藏按钮保存到这里</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 宝藏目的地推荐 -->
+            <div id="communitySection" class="mt-8">
+                <div class="bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 rounded-3xl shadow-xl p-8 border-2 border-orange-200">
+                    <h3 class="text-2xl font-bold text-gray-700 mb-6 text-center flex items-center justify-center">
+                        <span class="mr-2">🌟</span> 大家都在推荐的宝藏目的地 <span class="ml-2">🌟</span>
+                    </h3>
+
+                    <!-- 推荐表单 -->
+                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mb-6 shadow-lg">
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <div class="flex-1">
+                                <input type="text" id="recommendCity" placeholder="🏙️ 推荐城市名称" 
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-orange-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 outline-none transition-all duration-300 text-gray-700 placeholder-gray-400">
+                            </div>
+                            <div class="flex-[2]">
+                                <input type="text" id="recommendReason" placeholder="💬 一句话推荐理由（为什么值得去？）" 
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-orange-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 outline-none transition-all duration-300 text-gray-700 placeholder-gray-400">
+                            </div>
+                            <button id="submitRecommend" class="px-6 py-3 bg-gradient-to-r from-orange-400 to-amber-400 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
+                                <span>🚀</span>
+                                <span>推荐</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 推荐列表 -->
+                    <div id="recommendList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- 推荐卡片将通过JS动态生成 -->
+                    </div>
+                    <div id="noRecommends" class="text-center text-gray-400 py-8">
+                        <p class="text-5xl mb-3">🌍</p>
+                        <p class="text-lg">还没有人推荐呢</p>
+                        <p class="text-sm mt-1">做第一个分享宝藏目的地的人吧～</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 反馈区域 -->
+        <div id="feedbackSection" class="max-w-3xl mx-auto mt-8 mb-8">
+            <div class="bg-gradient-to-br from-purple-50 via-pink-50 to-rose-50 rounded-3xl shadow-xl p-8 border-2 border-pink-200">
+                <h3 class="text-2xl font-bold text-gray-700 mb-2 text-center flex items-center justify-center">
+                    <span class="mr-2">💬</span> 给我们反馈
+                </h3>
+                <p class="text-center text-gray-500 mb-6">✨ 你的建议，会让攻略更好用！ ✨</p>
+
+                <!-- 评分 -->
+                <div class="flex justify-center mb-6">
+                    <div id="starRating" class="flex gap-2">
+                        <span class="star" data-rating="1">⭐</span>
+                        <span class="star" data-rating="2">⭐</span>
+                        <span class="star" data-rating="3">⭐</span>
+                        <span class="star" data-rating="4">⭐</span>
+                        <span class="star" data-rating="5">⭐</span>
+                    </div>
+                    <span id="ratingText" class="ml-3 text-pink-500 font-semibold hidden">很棒！</span>
+                </div>
+
+                <!-- 反馈输入 -->
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg mb-4">
+                    <textarea id="feedbackInput" rows="4" 
+                        placeholder="📝 说点什么吧～ 可以是使用建议、发现的bug、想要的新功能..."
+                        class="w-full px-4 py-3 rounded-xl border-2 border-pink-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-100 outline-none transition-all duration-300 text-gray-700 placeholder-gray-400 resize-none"></textarea>
+                </div>
+
+                <!-- 提交按钮 -->
+                <div class="text-center">
+                    <button id="submitFeedback" class="px-8 py-3 bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2 mx-auto">
+                        <span>🚀</span>
+                        <span>提交反馈</span>
+                    </button>
+                </div>
+
+                <!-- 私密反馈提示 -->
+                <div id="feedbackPrivateNotice" class="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-4 border border-green-200">
+                    <div class="flex items-center justify-center gap-2 text-green-700">
+                        <span class="text-xl">🔒</span>
+                        <span class="font-semibold">私密反馈</span>
+                    </div>
+                    <p class="text-center text-green-600 text-sm mt-2">你的反馈仅保存在本设备上，只有你自己能看到</p>
+                </div>
+
+                <!-- 个人反馈记录（仅用户自己可见） -->
+                <div id="feedbackList" class="mt-6 space-y-4">
+                    <!-- 反馈卡片仅用户自己可见 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部装饰 -->
+    <footer class="text-center py-6 text-gray-500 text-sm">
+        <p>🌍 旅行是治愈生活的良药 🧡</p>
+        <p class="mt-1">✨ 用心感受每一段旅程 ✨</p>
+    </footer>
+
+    <!-- 2D小人常驻悬浮栏 -->
+    <div id="travelCharacter" class="fixed z-40 transition-all duration-500 cursor-move" style="bottom: 1.5rem; right: 1.5rem;">
+        <div class="character-container relative">
+            <!-- 小人主体 -->
+            <div id="character" class="text-6xl transition-all duration-300 hover:scale-110">
+                <div id="characterBody">🧳</div>
+            </div>
+            <!-- 等级标识 -->
+            <div id="characterLevel" class="absolute -top-2 -right-2 bg-purple-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">1</div>
+            <!-- 纪念章展示 -->
+            <div id="characterBadges" class="absolute -bottom-4 left-1/2 transform -translate-x-1/2 flex gap-1">
+            </div>
+            <!-- 待出行攻略提醒 -->
+            <div id="upcomingTrip" class="hidden absolute -top-16 -right-4 bg-white rounded-xl shadow-lg p-3 text-sm whitespace-nowrap">
+                <span class="text-lg mr-1">📋</span>
+                <span id="upcomingTripText">待出行：杭州3日游</span>
+            </div>
+        </div>
+        <!-- 小人对话气泡 -->
+        <div id="characterSpeech" class="hidden bg-white rounded-2xl shadow-lg p-3 max-w-xs mt-2 text-sm text-gray-700 absolute right-0 bottom-full mb-2">
+            <div class="absolute bottom-0 right-4 transform translate-y-1/2 border-8 border-transparent border-t-white"></div>
+            <span id="speechText"></span>
+        </div>
+        <!-- 最小化按钮 -->
+        <button id="minimizeCharacterBtn" class="absolute -top-2 -left-2 bg-white rounded-full shadow-md w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors">
+            <span class="text-xs">−</span>
+        </button>
+        <!-- 展开面板（最小化后显示） -->
+        <div id="characterExpandPanel" class="hidden fixed bottom-20 right-6 bg-white rounded-2xl shadow-2xl p-4 w-64">
+            <div class="flex items-center justify-between mb-3">
+                <span class="font-bold text-gray-700">旅行旅人</span>
+                <button id="closeExpandPanel" class="text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+            <div class="text-center mb-3">
+                <span id="expandCharacterBody" class="text-5xl">🧳</span>
+            </div>
+            <div class="space-y-2">
+                <button id="expandViewAlbum" class="w-full py-2 bg-gradient-to-r from-purple-400 to-pink-400 text-white text-sm font-medium rounded-xl hover:shadow-lg transition-all">
+                    📸 旅行纪念册
+                </button>
+                <button id="expandCheckin" class="w-full py-2 bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-sm font-medium rounded-xl hover:shadow-lg transition-all">
+                    🎁 每日签到
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 旅行纪念册弹窗 -->
+    <div id="travelAlbumModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full mx-4 p-6 transform scale-95 transition-transform duration-300 max-h-[80vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-gray-700 flex items-center gap-2">
+                    <span>📸</span> 旅行纪念册
+                </h3>
+                <button id="closeTravelAlbumModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <span class="text-2xl">✕</span>
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <!-- 小人成长记录 -->
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-700 mb-3">小人成长记录</h4>
+                    <div id="characterGrowth" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <!-- 成长记录将通过JS动态添加 -->
+                    </div>
+                </div>
+                
+                <!-- 打卡记录 -->
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-700 mb-3">打卡记录</h4>
+                    <div id="checkinRecords" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <!-- 打卡记录将通过JS动态添加 -->
+                    </div>
+                </div>
+                
+                <!-- 攻略收藏 -->
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-700 mb-3">攻略收藏</h4>
+                    <div id="savedGuides" class="space-y-3">
+                        <!-- 收藏的攻略将通过JS动态添加 -->
+                    </div>
+                </div>
+                
+                <!-- 导出按钮 -->
+                <div class="flex gap-4">
+                    <button id="exportImageBtn" class="flex-1 py-3 bg-gradient-to-r from-purple-400 to-pink-400 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                        📷 生成纪念图片
+                    </button>
+                    <button id="exportPDFBtn" class="flex-1 py-3 bg-gradient-to-r from-blue-400 to-green-400 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                        📄 导出PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 城市地图弹窗 -->
+    <div id="cityMapModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center opacity-0 transition-opacity duration-300">
+        <div id="cityMapContent" class="bg-white rounded-3xl shadow-2xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto transform scale-95 transition-transform duration-300">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <span id="modalCityEmoji" class="text-4xl"></span>
+                        <div>
+                            <h3 id="modalCityName" class="text-2xl font-bold text-gray-700"></h3>
+                            <p id="modalCityDesc" class="text-gray-500 text-sm"></p>
+                        </div>
+                    </div>
+                    <button id="closeCityModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <span class="text-2xl">✕</span>
+                    </button>
+                </div>
+                <div class="border-t border-gray-100 pt-4">
+                    <h4 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <span>🏛️</span> 核心景点
+                    </h4>
+                    <div id="modalCityFeatures" class="flex flex-wrap gap-2 mb-4"></div>
+                    <h4 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <span>🍜</span> 特色美食
+                    </h4>
+                    <div id="modalCityFoods" class="flex flex-wrap gap-2 mb-4"></div>
+                    <h4 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <span>📖</span> 城市简介
+                    </h4>
+                    <p id="modalCityIntro" class="text-gray-600 text-sm leading-relaxed"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 反馈成功弹窗 -->
+    <div id="feedbackSuccessModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full mx-4 p-8 text-center transform scale-95 transition-transform duration-300">
+            <div class="text-6xl mb-4 animate-bounce">✈️</div>
+            <h3 class="text-xl font-bold text-gray-700 mb-2">你的建议</h3>
+            <h3 class="text-xl font-bold text-gray-700 mb-4">会让下一次旅行更棒 ✨</h3>
+            <p class="text-gray-500 text-sm mb-6">感谢你的反馈，我们会努力做得更好</p>
+            <button id="closeFeedbackModal" class="px-6 py-2 bg-gradient-to-r from-purple-400 to-pink-400 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+                我知道了
+            </button>
+        </div>
+    </div>
+
+    <!-- 推荐目的地弹窗 -->
+    <div id="recommendModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full mx-4 p-6 transform scale-95 transition-transform duration-300">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-gray-700 flex items-center gap-2">
+                    <span>⭐</span> 推荐宝藏目的地
+                </h3>
+                <button id="closeRecommendModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <span class="text-2xl">✕</span>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">目的地名称</label>
+                    <input type="text" id="recommendDestinationName" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all" placeholder="请输入目的地名称">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">推荐理由</label>
+                    <textarea id="recommendReason" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all" placeholder="请分享你推荐的理由，比如特色景点、美食等"></textarea>
+                </div>
+                <button id="submitRecommend" class="w-full py-3 bg-gradient-to-r from-purple-400 to-pink-400 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                    提交推荐
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑笔记弹窗 -->
+    <div id="editNotesModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full mx-4 p-6 transform scale-95 transition-transform duration-300">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-gray-700 flex items-center gap-2">
+                    <span>✏️</span> 编辑笔记
+                </h3>
+                <button id="closeEditNotesModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <span class="text-2xl">✕</span>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">攻略标题</label>
+                    <input type="text" id="guideTitleInput" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all" placeholder="请输入攻略标题">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">旅行心得</label>
+                    <textarea id="guideNotesInput" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all" placeholder="请输入你的旅行心得、打卡记录或临时备注"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">自定义标签</label>
+                    <input type="text" id="guideTagsInput" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all" placeholder="请输入标签，如：必吃、避雷（用逗号分隔）">
+                </div>
+                <button id="saveNotesBtn" class="w-full py-3 bg-gradient-to-r from-purple-400 to-pink-400 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                    保存笔记
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 旅行人格测试弹窗 -->
+    <div id="personalityTestModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full mx-4 p-6 transform scale-95 transition-transform duration-300">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-gray-700 flex items-center gap-2">
+                    <span>🧭</span> 旅行人格测试
+                </h3>
+                <button id="closePersonalityTestModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <span class="text-2xl">✕</span>
+                </button>
+            </div>
+            
+            <div id="personalityTestContent">
+                <!-- 测试进度 -->
+                <div class="mb-6">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-sm text-gray-600">问题 <span id="currentQuestion">1</span>/6</span>
+                        <span class="text-sm text-gray-600" id="progressText">17%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="progressBar" class="bg-gradient-to-r from-purple-400 to-pink-400 h-2 rounded-full" style="width: 17%"></div>
+                    </div>
+                </div>
+                
+                <!-- 问题内容 -->
+                <div id="questionContainer" class="mb-6">
+                    <h4 id="questionText" class="text-lg font-semibold text-gray-700 mb-4">旅行时，你最喜欢的活动是？</h4>
+                    <div id="optionsContainer" class="space-y-3">
+                        <button class="option-btn w-full text-left p-4 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors" data-value="A">
+                            <span class="font-medium">A. </span>找个舒适的地方，晒晒太阳，放松心情
+                        </button>
+                        <button class="option-btn w-full text-left p-4 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors" data-value="B">
+                            <span class="font-medium">B. </span>尝遍当地所有美食，做个美食特种兵
+                        </button>
+                        <button class="option-btn w-full text-left p-4 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors" data-value="C">
+                            <span class="font-medium">C. </span>参观博物馆、历史遗迹，了解当地文化
+                        </button>
+                        <button class="option-btn w-full text-left p-4 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors" data-value="D">
+                            <span class="font-medium">D. </span>探索人少景美的小众景点，远离喧嚣
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 导航按钮 -->
+                <div class="flex justify-between">
+                    <button id="prevQuestionBtn" class="px-6 py-2 border border-gray-300 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors" disabled>
+                        上一题
+                    </button>
+                    <button id="nextQuestionBtn" class="px-6 py-2 bg-gradient-to-r from-purple-400 to-pink-400 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                        下一题
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 测试结果 -->
+            <div id="personalityResult" class="hidden">
+                <div class="text-center mb-6">
+                    <div id="personalityEmoji" class="text-6xl mb-4"></div>
+                    <h4 id="personalityTitle" class="text-2xl font-bold text-gray-700 mb-2"></h4>
+                    <p id="personalityDescription" class="text-gray-600 mb-4"></p>
+                </div>
+                <button id="startPlanningBtn" class="w-full py-3 bg-gradient-to-r from-purple-400 to-pink-400 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                    开始定制旅行
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 预算反向定制弹窗 -->
+    <div id="budgetReverseModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full mx-4 p-6 transform scale-95 transition-transform duration-300">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-gray-700 flex items-center gap-2">
+                    <span>💰</span> 预算反向定制
+                </h3>
+                <button id="closeBudgetReverseModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <span class="text-2xl">✕</span>
+                </button>
+            </div>
+            <div class="space-y-6">
+                <!-- 预算输入 -->
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">预算金额 (元)</label>
+                    <input type="number" id="budgetAmount" placeholder="请输入你的旅行预算" min="100" step="100" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-400 focus:ring-2 focus:ring-green-100 outline-none transition-all duration-300 text-gray-700">
+                </div>
+                <!-- 出行天数 -->
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">出行天数</label>
+                    <div class="flex flex-wrap gap-2" id="budgetDaysGroup">
+                        <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="budgetDays" data-value="1">1天</button>
+                        <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent selected" data-type="budgetDays" data-value="2">2天</button>
+                        <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="budgetDays" data-value="3">3天</button>
+                        <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="budgetDays" data-value="4">4天</button>
+                        <button class="option-btn px-4 py-2 rounded-full bg-white text-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-transparent" data-type="budgetDays" data-value="5">5天</button>
+                    </div>
+                </div>
+                <!-- 出发城市 -->
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">出发城市</label>
+                    <input type="text" id="departureCity" placeholder="请输入你的出发城市" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-400 focus:ring-2 focus:ring-green-100 outline-none transition-all duration-300 text-gray-700">
+                </div>
+                <!-- 匹配按钮 -->
+                <div class="pt-4">
+                    <button id="matchDestinationsBtn" class="w-full py-4 bg-gradient-to-r from-green-400 to-teal-400 text-white font-bold rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+                        🎯 开始匹配目的地
+                    </button>
+                </div>
+            </div>
+            <!-- 匹配结果 -->
+            <div id="budgetMatchResults" class="mt-6 hidden">
+                <div class="border-t border-gray-200 pt-6">
+                    <h4 class="text-lg font-bold text-gray-700 mb-4">匹配结果</h4>
+                    <div id="matchResultsList" class="space-y-4">
+                        <!-- 匹配结果将通过JS动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分享菜单弹窗 -->
+    <div id="shareMenuModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center opacity-0 transition-opacity duration-300">
+        <div id="shareMenuContent" class="bg-white rounded-2xl shadow-2xl max-w-sm w-full mx-4 overflow-hidden transform scale-95 transition-transform duration-300">
+            <div class="p-6">
+                <h3 class="text-lg font-bold text-gray-700 mb-4 text-center">分享到</h3>
+                <div class="grid grid-cols-3 gap-4">
+                    <button id="copyLinkBtn" class="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-gray-50 transition-colors">
+                        <span class="text-4xl">🔗</span>
+                        <span class="text-sm text-gray-600">复制链接</span>
+                    </button>
+                    <button id="copyTextBtn" class="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-gray-50 transition-colors">
+                        <span class="text-4xl">📋</span>
+                        <span class="text-sm text-gray-600">复制文案</span>
+                    </button>
+                    <button id="generateImageBtn" class="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-gray-50 transition-colors">
+                        <span class="text-4xl">�</span>
+                        <span class="text-sm text-gray-600">生成图片</span>
+                    </button>
+                    <button id="shareWechatBtn" class="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-gray-50 transition-colors">
+                        <span class="text-4xl">💬</span>
+                        <span class="text-sm text-gray-600">微信</span>
+                    </button>
+                    <button id="shareQQBtn" class="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-gray-50 transition-colors">
+                        <span class="text-4xl">💭</span>
+                        <span class="text-sm text-gray-600">QQ</span>
+                    </button>
+                    <button id="shareWeiboBtn" class="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-gray-50 transition-colors">
+                        <span class="text-4xl">📱</span>
+                        <span class="text-sm text-gray-600">微博</span>
+                    </button>
+                    <button id="shareXiaohongshuBtn" class="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-gray-50 transition-colors">
+                        <span class="text-4xl">�</span>
+                        <span class="text-sm text-gray-600">小红书</span>
+                    </button>
+                </div>
+            </div>
+            <div class="border-t border-gray-100">
+                <button id="cancelShare" class="w-full py-3 text-gray-500 hover:bg-gray-50 transition-colors">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 收藏彩蛋动画容器 -->
+    <div id="favEasterEgg" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none hidden">
+        <div class="flex items-center gap-4 text-4xl animate-float-up">
+            <span>🧳</span>
+            <span>✈️</span>
+            <span>🗺️</span>
+        </div>
+    </div>
+
+    <!-- 首次进入专属形象领取弹窗 -->
+    <div id="welcomeModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full mx-4 p-8 transform scale-95 transition-transform duration-300 text-center">
+            <div class="text-6xl mb-4 animate-bounce">🎁</div>
+            <h2 class="text-2xl font-bold text-gray-700 mb-2">领取你的专属旅行旅人</h2>
+            <p class="text-gray-500 mb-4">开启治愈系旅行的第一步</p>
+            
+            <!-- 性别切换 -->
+            <div class="flex justify-center gap-4 mb-4">
+                <button id="selectMaleGender" class="gender-btn px-6 py-2 rounded-full bg-blue-100 text-blue-600 font-medium selected" data-gender="male">👦 男款</button>
+                <button id="selectFemaleGender" class="gender-btn px-6 py-2 rounded-full bg-pink-100 text-pink-600 font-medium" data-gender="female">👧 女款</button>
+            </div>
+            
+            <!-- 形象选择 -->
+            <div class="mb-6">
+                <p class="text-left text-gray-600 font-medium mb-3">选择你的旅行形象</p>
+                <div id="avatarGrid" class="grid grid-cols-4 gap-3">
+                    <!-- 男款形象 -->
+                    <button class="avatar-option p-3 rounded-xl border-2 border-gray-200 hover:border-pink-400 transition-all duration-300 selected" data-avatar="👦" data-gender="male">
+                        <div class="text-4xl mb-1">👦</div>
+                        <span class="text-xs text-gray-500">阳光少年</span>
+                    </button>
+                    <button class="avatar-option p-3 rounded-xl border-2 border-gray-200 hover:border-pink-400 transition-all duration-300" data-avatar="🧑‍🎤" data-gender="male">
+                        <div class="text-4xl mb-1">🧑‍🎤</div>
+                        <span class="text-xs text-gray-500">文艺青年</span>
+                    </button>
+                    <button class="avatar-option p-3 rounded-xl border-2 border-gray-200 hover:border-pink-400 transition-all duration-300" data-avatar="🧑‍✈️" data-gender="male">
+                        <div class="text-4xl mb-1">🧑‍✈️</div>
+                        <span class="text-xs text-gray-500">飞行旅人</span>
+                    </button>
+                    <button class="avatar-option p-3 rounded-xl border-2 border-gray-200 hover:border-pink-400 transition-all duration-300" data-avatar="🧑‍🍳" data-gender="male">
+                        <div class="text-4xl mb-1">🧑‍🍳</div>
+                        <span class="text-xs text-gray-500">美食达人</span>
+                    </button>
+                    <!-- 女款形象（默认隐藏） -->
+                    <button class="avatar-option p-3 rounded-xl border-2 border-gray-200 hover:border-pink-400 transition-all duration-300 hidden" data-avatar="👧" data-gender="female">
+                        <div class="text-4xl mb-1">👧</div>
+                        <span class="text-xs text-gray-500">元气少女</span>
+                    </button>
+                    <button class="avatar-option p-3 rounded-xl border-2 border-gray-200 hover:border-pink-400 transition-all duration-300 hidden" data-avatar="👩‍🎤" data-gender="female">
+                        <div class="text-4xl mb-1">👩‍🎤</div>
+                        <span class="text-xs text-gray-500">文艺女神</span>
+                    </button>
+                    <button class="avatar-option p-3 rounded-xl border-2 border-gray-200 hover:border-pink-400 transition-all duration-300 hidden" data-avatar="👩‍✈️" data-gender="female">
+                        <div class="text-4xl mb-1">👩‍✈️</div>
+                        <span class="text-xs text-gray-500">飞行旅人</span>
+                    </button>
+                    <button class="avatar-option p-3 rounded-xl border-2 border-gray-200 hover:border-pink-400 transition-all duration-300 hidden" data-avatar="👩‍🍳" data-gender="female">
+                        <div class="text-4xl mb-1">👩‍🍳</div>
+                        <span class="text-xs text-gray-500">美食达人</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 昵称输入 -->
+            <div class="mb-6">
+                <p class="text-left text-gray-600 font-medium mb-3">取个昵称（可跳过）</p>
+                <input type="text" id="nicknameInput" placeholder="默认：旅行旅人" maxlength="10" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-100 outline-none transition-all duration-300 text-gray-700">
+            </div>
+            
+            <!-- 确认按钮 -->
+            <button id="confirmWelcomeBtn" class="w-full py-4 bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+                ✨ 一键领取 ✨
+            </button>
+            <p class="text-xs text-gray-400 mt-3">点击领取即表示同意我们的<a href="#" class="text-pink-400">用户协议</a></p>
+        </div>
+    </div>
+
+    <!-- 每日签到弹窗 -->
+    <div id="checkinModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-700 flex items-center gap-2">
+                        <span>🎁</span> 每日签到
+                    </h3>
+                    <button id="closeCheckinModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <span class="text-2xl">✕</span>
+                    </button>
+                </div>
+                
+                <!-- 旅行贝壳余额 -->
+                <div class="bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl p-4 mb-6 text-white text-center">
+                    <p class="text-sm opacity-90">旅行贝壳余额</p>
+                    <p class="text-3xl font-bold" id="shellBalance">0</p>
+                </div>
+                
+                <!-- 签到日历和装扮商城标签页 -->
+                <div class="mb-6">
+                    <div class="flex border-b border-gray-200 mb-4">
+                        <button id="checkinTab" class="flex-1 py-2 text-center font-semibold text-pink-500 border-b-2 border-pink-500">📅 签到</button>
+                        <button id="mallTab" class="flex-1 py-2 text-center font-semibold text-gray-500 hover:text-gray-700">🎀 装扮商城</button>
+                    </div>
+                    
+                    <!-- 签到面板 -->
+                    <div id="checkinPanel">
+                        <!-- 签到按钮 -->
+                        <div class="text-center mb-6">
+                            <button id="doCheckinBtn" class="px-8 py-3 bg-gradient-to-r from-green-400 to-teal-400 text-white font-bold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                                🎯 立即签到
+                            </button>
+                            <p id="checkinStatus" class="mt-3 text-gray-500 text-sm hidden">今日已签到 ✓</p>
+                        </div>
+                        
+                        <!-- 连续签到奖励提示 -->
+                        <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-4 mb-4 text-sm">
+                            <p class="font-semibold text-purple-600 mb-2">🌟 连续签到奖励</p>
+                            <p class="text-gray-600">连续签到7天额外奖励：50贝壳 + 限定装扮碎片！</p>
+                        </div>
+                        
+                        <!-- 当月日历 -->
+                        <div class="mb-4">
+                            <p class="text-center font-semibold text-gray-700 mb-3" id="checkinMonth">2024年1月</p>
+                            <div class="grid grid-cols-7 gap-1 text-center text-sm">
+                                <span class="text-gray-400">日</span>
+                                <span class="text-gray-400">一</span>
+                                <span class="text-gray-400">二</span>
+                                <span class="text-gray-400">三</span>
+                                <span class="text-gray-400">四</span>
+                                <span class="text-gray-400">五</span>
+                                <span class="text-gray-400">六</span>
+                            </div>
+                            <div id="checkinCalendar" class="grid grid-cols-7 gap-1 text-center text-sm mt-2">
+                                <!-- 日历将通过JS动态生成 -->
+                            </div>
+                        </div>
+                        
+                        <!-- 签到记录 -->
+                        <div class="border-t border-gray-100 pt-4">
+                            <p class="text-sm font-semibold text-gray-600 mb-2">获得贝壳记录</p>
+                            <div id="checkinRecords" class="space-y-2 max-h-32 overflow-y-auto">
+                                <!-- 记录将通过JS动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 装扮商城面板 -->
+                    <div id="mallPanel" class="hidden">
+                        <p class="text-sm text-gray-500 mb-4 text-center">用旅行贝壳兑换小人的专属装扮和动作</p>
+                        
+                        <!-- 装扮分类 -->
+                        <div class="mb-4">
+                            <div class="flex gap-2 overflow-x-auto pb-2">
+                                <button class="mall-category-btn px-4 py-2 bg-pink-100 text-pink-600 font-medium rounded-full whitespace-nowrap selected" data-category="clothing">👔 服装</button>
+                                <button class="mall-category-btn px-4 py-2 bg-gray-100 text-gray-600 font-medium rounded-full whitespace-nowrap" data-category="action">🤸 动作</button>
+                                <button class="mall-category-btn px-4 py-2 bg-gray-100 text-gray-600 font-medium rounded-full whitespace-nowrap" data-category="accessory">🎀 配饰</button>
+                                <button class="mall-category-btn px-4 py-2 bg-gray-100 text-gray-600 font-medium rounded-full whitespace-nowrap" data-category="city">🏯 城市</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 装扮列表 -->
+                        <div id="mallItems" class="grid grid-cols-2 gap-4 max-h-64 overflow-y-auto">
+                            <!-- 装扮将通过JS动态生成 -->
+                        </div>
+                        
+                        <!-- 已拥有装扮 -->
+                        <div class="border-t border-gray-100 pt-4 mt-4">
+                            <p class="text-sm font-semibold text-gray-600 mb-2">已拥有的装扮</p>
+                            <div id="ownedItems" class="flex flex-wrap gap-2">
+                                <!-- 已拥有装扮将通过JS动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
